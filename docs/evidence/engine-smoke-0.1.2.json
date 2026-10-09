@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "provider": "local deterministic fixture",
+  "outputs": [
+    {
+      "kind": "mono",
+      "pages": 1,
+      "contains_chinese": true
+    },
+    {
+      "kind": "dual",
+      "pages": 1,
+      "contains_chinese": true
+    }
+  ],
+  "exit_code": 0,
+  "model_requests": 3,
+  "original_unchanged": true,
+  "seconds": 42.0
+}

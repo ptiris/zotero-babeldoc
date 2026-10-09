@@ -1,0 +1,11 @@
+BabelDOC for Zotero 0.1.1 验证记录
+
+实际验证环境：macOS Apple Silicon，Zotero 10.0.6，Python 3.12.14，BabelDOC 0.6.4。
+修复 Zotero 清单缺少强制 update_url 字段导致安装失败的问题。
+使用 Zotero 的独立测试资料库加载实际 XPI，插件启用成功，菜单与设置入口正常。
+通过真实翻译窗口提交测试 PDF，真实 BabelDOC 调用本地模拟 OpenAI 兼容服务，生成译文与双语 PDF，引擎退出码 0。
+两份 PDF 成功保存为原文献的子附件；原 PDF 内容未改变；生成结果含中文文本。
+Zotero 内置 PDF 阅读器实际显示双语 PDF，原文与中文左右并排；阅读器“译”按钮存在。
+JS 控制器测试 11 项通过；Python 桥接测试 10 项通过。
+测试使用确定性模拟模型，验证接入流程；不验证真实模型的翻译质量、账户余额或 API 权限。
+Zotero 7–9 和 Windows/Linux 保留兼容实现，但尚未在这些环境执行实际集成测试。

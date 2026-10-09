@@ -1,0 +1,21 @@
+{
+  "zotero": "10.0.6",
+  "plugin": "0.1.1",
+  "babeldoc": "0.6.4",
+  "python": "3.12.14",
+  "engine_exit_code": 0,
+  "original_pdfs_unchanged": true,
+  "outputs": [
+    {
+      "title": "BabelDOC · zh · 译文",
+      "pages": 1,
+      "contains_chinese": true
+    },
+    {
+      "title": "BabelDOC · zh · 双语对照",
+      "pages": 1,
+      "contains_chinese": true
+    }
+  ],
+  "reader_display": "Confirmed by native Zotero accessibility state and screenshot; bilingual PDF visibly renders English and Chinese side by side."
+}

@@ -1,0 +1,16 @@
+/dist/
+/engine/
+/.engine-install-cache/
+/.venv/
+/node_modules/
+__pycache__/
+*.py[cod]
+engine-home/
+.DS_Store
+.env
+.env.*
+!.env.example
+*.log
+/test-results/
+*.pdf
+/:memory:.ses

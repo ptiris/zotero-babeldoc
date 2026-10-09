@@ -1,0 +1,2 @@
+# The bridge is verified against this exact BabelDOC API.
+BabelDOC==0.6.4

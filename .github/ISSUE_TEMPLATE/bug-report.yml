@@ -1,0 +1,40 @@
+name: 错误报告 / Bug report
+description: 安装、翻译、附件导入或阅读器问题
+title: '[Bug] '
+body:
+  - type: markdown
+    attributes:
+      value: 请勿提交 API Key、私人 PDF、缓存或数据库。先阅读 docs/troubleshooting.md。
+  - type: input
+    id: versions
+    attributes:
+      label: 组件版本
+      description: Zotero、插件、Python、BabelDOC 的具体版本
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: 系统与架构
+      placeholder: macOS / Windows / Linux，arm64 / x86_64
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤、预期与实际行为
+    validations:
+      required: true
+  - type: textarea
+    id: error
+    attributes:
+      label: 已脱敏的错误与日志
+      description: 人工检查密钥、URL 参数、论文内容和文件路径；只附必要内容。
+      render: text
+  - type: checkboxes
+    id: reviewed
+    attributes:
+      label: 信息检查
+      options:
+        - label: 已检查提供的信息不含密钥或私人文档。
+          required: true

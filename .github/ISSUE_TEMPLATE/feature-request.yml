@@ -1,0 +1,16 @@
+name: 功能建议 / Feature request
+description: 描述具体使用场景与期望行为
+title: '[Feature] '
+body:
+  - type: textarea
+    id: usecase
+    attributes:
+      label: 使用场景与当前困难
+    validations:
+      required: true
+  - type: textarea
+    id: proposed
+    attributes:
+      label: 期望的行为与可接受的替代方案
+    validations:
+      required: true

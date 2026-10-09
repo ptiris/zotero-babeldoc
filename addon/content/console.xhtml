@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><title>BabelDOC · PDF 翻译</title><meta charset="utf-8" />
+<link rel="stylesheet" href="console.css" /><script src="console.js"></script></head>
+<body>
+<header><span class="badge">BabelDOC × Zotero</span><h1>让论文跨越语言</h1><p>翻译保留排版的 PDF，在 Zotero 内阅读译文与双语对照。</p></header>
+<main>
+<section class="source"><div class="row"><strong>待翻译文献</strong><button id="refresh-selection" type="button">更新选择</button></div><div id="source-list">正在读取…</div></section>
+<form id="config">
+<fieldset><legend>翻译引擎</legend>
+<label class="full">Python 路径 <input id="python" type="text" placeholder="BabelDOC 环境内 Python 的绝对路径" required="required" /></label>
+<div class="row"><span class="hint">先运行交付包中的安装脚本，将它打印的路径填入此处。</span><button id="probe" type="button">检查环境</button></div><p id="probe-status" class="hint" role="status"></p>
+<label class="full">API 地址 <input id="base_url" type="url" placeholder="https://api.openai.com/v1" required="required" /></label>
+<div class="grid"><label>模型名称 <input id="model" type="text" required="required" /></label><label>API Key <input id="api_key" type="password" autocomplete="off" required="required" /></label></div>
+<label class="check"><input id="remember" type="checkbox" />记住密钥（保存在 Zotero 的密码管理器中）</label>
+</fieldset>
+<fieldset><legend>翻译选项</legend><div class="grid">
+<label>源语言 <input id="lang_in" type="text" placeholder="en" required="required" /></label><label>目标语言 <input id="lang_out" type="text" placeholder="zh" required="required" /></label>
+<label>页码范围 <input id="pages" type="text" placeholder="全文，或 1,3-5" /></label><label>输出 PDF <select id="output_mode"><option value="both">译文 + 双语对照</option><option value="dual">仅双语对照</option><option value="mono">仅译文</option></select></label>
+<label>双语排版 <select id="dual_layout"><option value="side-by-side">原文与译文左右并排</option><option value="alternating">原文与译文交替分页</option></select></label>
+<label>每秒请求数 <input id="qps" type="number" min="1" max="20" value="2" /></label>
+</div><div class="checks"><label class="check"><input id="ocr" type="checkbox" />自动尝试扫描件 OCR</label><label class="check"><input id="auto_open" type="checkbox" />完成后自动打开结果</label></div>
+</fieldset>
+<p class="hint">PDF 内容会发送到你设置的模型服务。首次运行 BabelDOC 会下载版面模型和字体。</p>
+<div class="actions"><button id="start" class="primary" type="submit">开始翻译</button><button id="cancel" type="button" disabled="disabled">取消任务</button></div>
+</form>
+<section class="status" aria-live="polite"><div class="row"><strong id="phase">准备就绪</strong><span id="percent"></span></div><progress id="progress" value="0" max="100"></progress><p id="error" role="alert"></p><ul id="job-list"></ul><div id="outputs"></div></section>
+<footer>译文与原文作为独立附件保存。关闭此窗口后任务继续运行，可从菜单重新打开。</footer>
+</main></body></html>

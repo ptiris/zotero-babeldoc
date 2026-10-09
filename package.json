@@ -1,0 +1,14 @@
+{
+  "name": "zotero-babeldoc",
+  "version": "0.1.2",
+  "private": true,
+  "description": "BabelDOC PDF translation inside Zotero",
+  "license": "AGPL-3.0-or-later",
+  "scripts": {
+    "test": "node --test tests/test_controller.cjs",
+    "check": "node --check addon/bootstrap.js && node --check addon/content/core.js && node --check addon/content/console.js && node --check addon/content/preferences.js"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

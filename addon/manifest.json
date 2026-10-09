@@ -1,0 +1,16 @@
+{
+  "manifest_version": 2,
+  "name": "BabelDOC for Zotero",
+  "version": "0.1.2",
+  "description": "在 Zotero 内翻译 PDF、保存译文与双语附件并打开阅读。",
+  "applications": {
+    "zotero": {
+      "id": "babeldoc@local.zotero",
+      "strict_min_version": "7.0",
+      "strict_max_version": "10.0.*",
+      "update_url": "https://github.com/ptiris/zotero-babeldoc/releases/download/release/updates.json"
+    }
+  },
+  "author": "BabelDOC for Zotero contributors",
+  "homepage_url": "https://github.com/ptiris/zotero-babeldoc"
+}
