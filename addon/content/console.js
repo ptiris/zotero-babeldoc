@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: AGPL-3.0-or-later */
 window.BabelDOCUI = {
-  defaults:{python:"",base_url:"https://api.openai.com/v1",model:"",lang_in:"en",lang_out:"zh",pages:"",output_mode:"both",dual_layout:"side-by-side",qps:2,ocr:false,auto_open:true},
-  fields:["python","base_url","model","lang_in","lang_out","pages","output_mode","dual_layout","qps","ocr","auto_open"],
+  defaults:{python:"",base_url:"https://api.openai.com/v1",model:"",lang_in:"en",lang_out:"zh",pages:"",output_mode:"both",dual_layout:"side-by-side",qps:2,ocr:false,auto_open:true,thinking:"disabled",max_output_tokens:8192,ignore_cache:false,debug:false},
+  fields:["python","base_url","model","lang_in","lang_out","pages","output_mode","dual_layout","qps","ocr","auto_open","thinking","max_output_tokens","ignore_cache","debug"],
   async init() {
     this.controller=window.arguments[0].controller;
     for (const field of this.fields) {
@@ -42,7 +42,8 @@ window.BabelDOCUI = {
   settings(){
     const result={};
     for (const field of this.fields) {const node=document.getElementById(field);result[field]=node.type==="checkbox" ? node.checked : node.value.trim();}
-    result.qps=Number(result.qps); result.api_key=document.getElementById("api_key").value.trim();
+    result.qps=Number(result.qps); result.max_output_tokens=Number(result.max_output_tokens);
+    result.api_key=document.getElementById("api_key").value.trim();
     result.remember=document.getElementById("remember").checked;
     return result;
   },
@@ -70,6 +71,7 @@ window.BabelDOCUI = {
       const row=document.createElement("li");row.textContent=`${job.title} · ${job.status}`;
       if (job.error) {const small=document.createElement("small");small.textContent=job.error;row.append(small);}
       if (job.recovery) {const small=document.createElement("small");small.textContent="结果保留于："+job.recovery;row.append(small);}
+      if (job.diagnostics) {const small=document.createElement("small");small.textContent="调试记录保留于："+job.diagnostics;row.append(small);}
       list.append(row);
     }
     const outputs=document.getElementById("outputs");outputs.replaceChildren();

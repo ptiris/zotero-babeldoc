@@ -24,10 +24,12 @@ Windows 最后一条使用 `engine\Scripts\python.exe`。快速测试检验队�
 可选完整引擎测试：
 
 ```bash
-engine/bin/python tests/smoke_engine.py
+engine/bin/python tests/smoke_engine.py --response-mode recover --debug
+engine/bin/python tests/smoke_engine.py --response-mode empty
+engine/bin/python tests/smoke_engine.py --response-mode truncated
 ```
 
-该命令创建自制英文 PDF、仅绑定回环地址的随机端口模拟模型，运行真实 BabelDOC，检查两份 PDF 的中文文本、正常退出和原文未改变。首次运行会联网下载模型和字体；不需要真实 API Key。报告默认在 `test-results/engine-smoke/report.json`；失败时保留 stderr 用于本机诊断，不要直接公开未经审阅的日志。
+这些命令创建自制英文 PDF、仅绑定回环地址的随机端口模拟模型，运行真实 BabelDOC。恢复场景检查重试后生成含中文的两份 PDF、正常退出、调试文件保留和原文未改变；空响应与截断场景检查明确失败、无成功事件。首次运行会联网下载模型和字体；不需要真实 API Key。报告默认在 `test-results/engine-smoke/report-场景.json`；失败时保留 stderr 用于本机诊断，不要直接公开未经审阅的日志。
 
 ## Zotero 桌面验证
 
@@ -38,6 +40,8 @@ python3 scripts/build.py --repository ptiris/zotero-babeldoc
 ```
 
 在测试 Zotero 手动安装 `dist/` 下的 XPI，创建一份自制 PDF，检查：菜单和设置入口、Python 检查、翻译进度、取消、译文/双语子附件、内置阅读器、原文哈希不变、禁用/重启清理和失败恢复。可通过 `python3 tests/mock_model.py --port 18987` 提供本地模型接口，填 `http://127.0.0.1:18987/v1` 和非空占位密钥；测试完成停止服务。此服务只供测试。
+
+检查 0.1.3 的思考模式、输出上限和缓存选项能否保存，开启调试后成功任务是否保留目录。另启动 `python3 tests/mock_model.py --port 18988 --response-mode empty`，切换 API 地址到该端口，确认持续空响应显示失败且没有新增附件。
 
 ## Actions
 

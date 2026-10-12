@@ -3,7 +3,7 @@
 <head><title>BabelDOC · PDF 翻译</title><meta charset="utf-8" />
 <link rel="stylesheet" href="console.css" /><script src="console.js"></script></head>
 <body>
-<header><span class="badge">BabelDOC × Zotero</span><h1>让论文跨越语言</h1><p>翻译保留排版的 PDF，在 Zotero 内阅读译文与双语对照。</p></header>
+<header><span class="badge">BabelDOC × Zotero</span><h1>PDF 翻译</h1><p>翻译论文，并在 Zotero 内阅读译文与双语对照。</p></header>
 <main>
 <section class="source"><div class="row"><strong>待翻译文献</strong><button id="refresh-selection" type="button">更新选择</button></div><div id="source-list">正在读取…</div></section>
 <form id="config">
@@ -20,6 +20,13 @@
 <label>双语排版 <select id="dual_layout"><option value="side-by-side">原文与译文左右并排</option><option value="alternating">原文与译文交替分页</option></select></label>
 <label>每秒请求数 <input id="qps" type="number" min="1" max="20" value="2" /></label>
 </div><div class="checks"><label class="check"><input id="ocr" type="checkbox" />自动尝试扫描件 OCR</label><label class="check"><input id="auto_open" type="checkbox" />完成后自动打开结果</label></div>
+</fieldset>
+<fieldset><legend>模型响应与调试</legend><div class="grid">
+<label>思考模式 <select id="thinking"><option value="disabled">关闭（推荐用于翻译）</option><option value="auto">使用服务默认</option><option value="enabled">开启</option></select></label>
+<label>输出 token 上限 <input id="max_output_tokens" type="number" min="512" max="131072" step="1" required="required" /></label>
+</div><p class="hint">默认关闭 DeepSeek 风格的思考模式。若服务不支持 thinking 参数，选择“使用服务默认”。上限须符合服务限制。</p>
+<div class="checks"><label class="check"><input id="ignore_cache" type="checkbox" />忽略翻译缓存，重新请求译文</label><label class="check"><input id="debug" type="checkbox" />保留调试记录</label></div>
+<p class="hint">调试记录含原文、译文和中间文件，保存在本机；任务结束后会显示路径。空响应或截断响应最多重试两次，持续失败时不导入结果。</p>
 </fieldset>
 <p class="hint">PDF 内容会发送到你设置的模型服务。首次运行 BabelDOC 会下载版面模型和字体。</p>
 <div class="actions"><button id="start" class="primary" type="submit">开始翻译</button><button id="cancel" type="button" disabled="disabled">取消任务</button></div>

@@ -76,3 +76,30 @@ test('probe remains usable after a previous cancellation',async()=>{
   const f=fixture();f.controller.cancelled=true;f.controller.callRunner=async(p,r,event,track)=>{assert.equal(track,false);return {type:'probe'}};
   assert.equal((await f.controller.probe('/python')).type,'probe');
 });
+test('response options reach Python and persist; debug results are retained',async()=>{
+  const f=fixture();f.items.set(2,f.pdf(2));f.controller.selectedIDs=[2];f.successRunner();
+  const success=f.controller.callRunner;
+  f.controller.callRunner=async(p,request,onEvent)=>{
+    assert.equal(request.thinking,'disabled');assert.equal(request.max_output_tokens,16384);
+    assert.equal(request.ignore_cache,true);assert.equal(request.debug,true);
+    return success(p,request,onEvent);
+  };
+  await f.controller.translate({...f.settings,thinking:'disabled',max_output_tokens:16384,ignore_cache:true,debug:true});
+  assert.equal(f.imported.length,2);assert.equal(f.removed.length,0);
+  assert.equal(f.controller.state.jobs[0].status,'完成');
+  assert.ok(f.controller.state.jobs[0].diagnostics);
+  assert.equal(f.prefs.get('extensions.zotero.babeldoc.ignore_cache'),true);
+});
+test('invalid token limit rejects the job before launching Python',async()=>{
+  const f=fixture();f.items.set(2,f.pdf(2));f.controller.selectedIDs=[2];
+  f.controller.callRunner=async()=>assert.fail('must not launch');
+  await assert.rejects(f.controller.translate({...f.settings,max_output_tokens:0}),/token/);
+  assert.equal(f.imported.length,0);assert.equal(f.controller.state.busy,false);
+});
+test('persistent empty response failure imports no PDF and leaves recovery files',async()=>{
+  const f=fixture();f.items.set(2,f.pdf(2));f.controller.selectedIDs=[2];
+  f.controller.callRunner=async()=>{throw Error('检测到持续无效的翻译响应，未导入可能缺字的 PDF。')};
+  await f.controller.translate(f.settings);
+  assert.equal(f.imported.length,0);assert.equal(f.removed.length,0);
+  assert.equal(f.controller.state.jobs[0].status,'失败');assert.ok(f.controller.state.jobs[0].recovery);
+});

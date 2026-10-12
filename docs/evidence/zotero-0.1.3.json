@@ -1,0 +1,114 @@
+{
+  "date": "2026-10-12",
+  "status": "passed",
+  "plugin": "0.1.3",
+  "zotero": "10.0.6",
+  "python": "3.12.14",
+  "babeldoc": "0.6.4",
+  "platform": "macOS Apple Silicon",
+  "provider": "local deterministic OpenAI-compatible fixture",
+  "checks": [
+    {
+      "name": "packaged plugin startup",
+      "ok": true
+    },
+    {
+      "name": "test data directory",
+      "ok": true
+    },
+    {
+      "name": "preference pane registered",
+      "ok": true
+    },
+    {
+      "name": "actual Gecko subprocess bridge",
+      "ok": true
+    },
+    {
+      "name": "parent resolves original PDF",
+      "ok": true
+    },
+    {
+      "name": "translation window initialized",
+      "ok": true
+    },
+    {
+      "name": "new response controls",
+      "ok": true
+    },
+    {
+      "name": "thinking disabled by default",
+      "ok": true
+    },
+    {
+      "name": "translation window controls",
+      "ok": true
+    },
+    {
+      "name": "form starts engine task",
+      "ok": true
+    },
+    {
+      "name": "translation task completes",
+      "ok": true
+    },
+    {
+      "name": "debug directory retained",
+      "ok": true
+    },
+    {
+      "name": "new options persisted",
+      "ok": true
+    },
+    {
+      "name": "both outputs imported",
+      "ok": true
+    },
+    {
+      "name": "results attached under original citation",
+      "ok": true
+    },
+    {
+      "name": "result file exists",
+      "ok": true
+    },
+    {
+      "name": "result file exists",
+      "ok": true
+    },
+    {
+      "name": "dual PDF opens in built-in reader",
+      "ok": true
+    },
+    {
+      "name": "original PDF unchanged",
+      "ok": true
+    },
+    {
+      "name": "API key not in prefs",
+      "ok": true
+    },
+    {
+      "name": "reader translation toolbar button",
+      "ok": true
+    },
+    {
+      "name": "persistent empty response fails in Zotero",
+      "ok": true
+    },
+    {
+      "name": "persistent empty response imports nothing",
+      "ok": true
+    },
+    {
+      "name": "failed task adds no attachment",
+      "ok": true
+    },
+    {
+      "name": "failure offers recovery path",
+      "ok": true
+    }
+  ],
+  "normal_outputs": 2,
+  "persistent_empty_response_imports": 0
+}

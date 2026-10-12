@@ -21,10 +21,12 @@ jobs:
           cache: pip
       - run: python -m pip install -r requirements.txt
       - run: python -m unittest discover -s tests -v
-      - run: python tests/smoke_engine.py
+      - run: python tests/smoke_engine.py --response-mode recover --debug
+      - run: python tests/smoke_engine.py --response-mode empty
+      - run: python tests/smoke_engine.py --response-mode truncated
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: engine-report-${{ matrix.os }}
-          path: test-results/engine-smoke/report.json
+          path: test-results/engine-smoke/report*.json
           if-no-files-found: warn

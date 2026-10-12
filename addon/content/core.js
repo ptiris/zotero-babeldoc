@@ -153,7 +153,10 @@ var BabelDOCController = class {
     if (!["http:","https:"].includes(endpoint.protocol) || endpoint.username || endpoint.password) throw new Error("API 地址必须为 HTTP(S) 地址，且不能包含用户名或密码。");
     if (!settings.model.trim()) throw new Error("请填写模型名称。");
     if (!settings.lang_in.trim() || !settings.lang_out.trim()) throw new Error("请填写源语言与目标语言代码。");
-    for (const name of ["python","base_url","model","lang_in","lang_out","pages","output_mode","dual_layout","qps","ocr","auto_open"]) this.setPref(name,settings[name]);
+    settings={thinking:"disabled",max_output_tokens:8192,ignore_cache:false,debug:false,...settings};
+    if (!["disabled","enabled","auto"].includes(settings.thinking)) throw new Error("请选择有效的思考模式。");
+    if (!Number.isInteger(settings.max_output_tokens) || settings.max_output_tokens<512 || settings.max_output_tokens>131072) throw new Error("输出 token 上限须为 512–131072 的整数。");
+    for (const name of ["python","base_url","model","lang_in","lang_out","pages","output_mode","dual_layout","qps","ocr","auto_open","thinking","max_output_tokens","ignore_cache","debug"]) this.setPref(name,settings[name]);
     await this.saveKey(settings.base_url, settings.api_key, settings.remember);
     this.cancelled=false;
     this.notify({busy:true, progress:0, phase:"准备翻译…", error:"",jobs:pdfs.map(p=>({id:p.id,title:p.getField("title"),status:"等待"})), outputs:[]});
@@ -200,7 +203,9 @@ var BabelDOCController = class {
             try { await Zotero.Reader.open(preferred.id); }
             catch (_) { this.notify({error:"附件已保存；自动打开失败，请点击下方阅读按钮。"}); }
           }
-          await IOUtils.remove(jobDir,{recursive:true}); jobDir=null;
+          if (settings.debug) {job.diagnostics=jobDir;this.notify();}
+          else await IOUtils.remove(jobDir,{recursive:true});
+          jobDir=null;
         } catch (error) {
           job.status=this.cancelled ? "已取消" : "失败"; job.error=String(error.message||error); failed++;
           this.notify({error:job.error});

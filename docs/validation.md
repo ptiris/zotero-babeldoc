@@ -20,6 +20,14 @@
 
 自动测试结果与发布状态以 [Actions](https://github.com/ptiris/zotero-babeldoc/actions) 为准。
 
+## 0.1.3 响应保护与桌面验证
+
+2026-10-12，14 项 JS 控制器测试、27 项 Python 测试及语法、链接、打包检查通过。真实 BabelDOC 0.6.4 接本地模拟服务验证了三种响应：首次空响应后恢复并生成两个含中文 PDF；持续空响应；持续截断。后两种均明确失败且不发出成功事件，原文哈希不变。恢复场景同时确认请求发送 `thinking.type=disabled`、8192 token 上限，调试中间文件实际生成。[引擎报告](evidence/engine-smoke-0.1.3.json)
+
+在 macOS Apple Silicon、Zotero 10.0.6、Python 3.12.14 的独立 profile 和 data directory 中安装新 XPI，经实际表单提交验证新选项显示和保存、Gecko 子进程、译文/双语子附件导入、内置阅读器、调试目录保留和原文不变。切换到持续返回空内容的本地服务后，界面显示失败，没有新增附件，共 25 项检查通过。另在实际窗口检查了新选项布局。[桌面报告](evidence/zotero-0.1.3.json)
+
+这些测试没有调用用户的真实 DeepSeek API，也没有将 ZipServ 论文上传给外部服务。空响应保护已验证；该论文在真实模型上的重译效果和其他解析/排版问题仍需分别核对。
+
 ## 未覆盖范围
 
 - Zotero 7–9、Windows/Linux 的实际安装及桌面工作流。

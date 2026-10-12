@@ -6,6 +6,7 @@ import pathlib
 import tempfile
 import types
 import unittest
+from unittest.mock import Mock, patch
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location("runner", ROOT / "addon/bridge/runner.py")
@@ -91,6 +92,116 @@ class BridgeTests(unittest.TestCase):
             inspect.signature(TranslationConfig).bind(**kwargs)
             self.assertEqual(kwargs["no_mono"], mode == "dual")
             self.assertEqual(kwargs["no_dual"], mode == "mono")
+
+    def test_reject_invalid_response_settings(self):
+        for change in ({"thinking": "unknown"}, {"max_output_tokens": 511},
+                       {"max_output_tokens": 131073}, {"max_output_tokens": True},
+                       {"max_output_tokens": 8192.5}, {"ignore_cache": "false"}, {"debug": "true"}):
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                runner.validate(dict(self.request, **change))
+
+    def test_debug_passed_to_engine(self):
+        runner.probe()
+        kwargs = runner.config_kwargs(dict(self.request, debug=True), object(), object())
+        self.assertTrue(kwargs["debug"])
+
+    @staticmethod
+    def completion(content="有效译文", finish="stop"):
+        return types.SimpleNamespace(usage=None, choices=[types.SimpleNamespace(
+            finish_reason=finish, message=types.SimpleNamespace(content=content))])
+
+    def protected_translator(self, **options):
+        runner.probe()
+        from babeldoc.translator.translator import set_translate_rate_limiter
+        set_translate_rate_limiter(1000)
+        request = dict(self.request, **options)
+        guard = runner.ResponseGuard(request, self.output)
+        return runner.make_translator(request, guard), guard
+
+    def test_empty_response_retried_and_valid_response_cached(self):
+        with patch("openai.resources.chat.completions.Completions.create",
+                   side_effect=[self.completion(""), self.completion()]) as create:
+            translator, guard = self.protected_translator()
+            prompt = str(self.root)
+            self.assertEqual(translator.llm_translate(prompt), "有效译文")
+            self.assertEqual(translator.llm_translate(prompt), "有效译文")
+            self.assertEqual(create.call_count, 2)
+            self.assertEqual(create.call_args.kwargs["max_tokens"], 8192)
+            self.assertEqual(create.call_args.kwargs["extra_body"]["thinking"], {"type": "disabled"})
+            guard.check()
+
+    def test_persistent_empty_or_truncated_response_never_cached(self):
+        for content, finish in ((" ", "stop"), (None, "stop"), ("半截译文", "length")):
+            with self.subTest(content=content, finish=finish):
+                with patch("openai.resources.chat.completions.Completions.create",
+                           return_value=self.completion(content, finish)) as create:
+                    translator, guard = self.protected_translator(debug=True)
+                    prompt = str(self.root) + str(content) + finish
+                    with self.assertRaises(runner.TranslationQualityError):
+                        translator.llm_translate(prompt)
+                    self.assertEqual(create.call_count, 3)
+                    self.assertIsNone(translator.cache.get(prompt))
+                    with self.assertRaises(runner.TranslationQualityError):
+                        guard.check()
+        diagnostics = (self.output / "diagnostics.jsonl").read_text()
+        self.assertNotIn(self.request["api_key"], diagnostics)
+        self.assertNotIn("半截译文", diagnostics)
+
+    def test_ignore_cache_auto_thinking_and_custom_token_limit(self):
+        with patch("openai.resources.chat.completions.Completions.create",
+                   return_value=self.completion()) as create:
+            translator, guard = self.protected_translator(thinking="auto", ignore_cache=True,
+                                                          max_output_tokens=16384)
+            for _ in range(2):
+                translator.llm_translate(str(self.root))
+            self.assertEqual(create.call_count, 2)
+            self.assertNotIn("thinking", create.call_args.kwargs["extra_body"])
+            self.assertEqual(create.call_args.kwargs["max_tokens"], 16384)
+            guard.check()
+
+    def test_service_error_marks_job_unsafe_even_if_engine_swallows_it(self):
+        with patch("openai.resources.chat.completions.Completions.create",
+                   side_effect=RuntimeError("unsupported thinking parameter")):
+            translator, guard = self.protected_translator()
+            with self.assertRaises(RuntimeError):
+                translator.llm_translate(str(self.root))
+            with self.assertRaises(runner.TranslationQualityError):
+                guard.check()
+
+    def test_empty_cache_is_ignored_without_deleting_it(self):
+        original = Mock()
+        cache = runner.NonEmptyCache(original)
+        for value in (None, "", " \n"):
+            original.get.return_value = value
+            self.assertIsNone(cache.get("source"))
+            cache.set("source", value)
+        original.set.assert_not_called()
+        original.get.return_value = "译文"
+        self.assertEqual(cache.get("source"), "译文")
+        cache.set("source", "译文")
+        original.set.assert_called_once_with("source", "译文")
+
+    def test_empty_paragraph_preserves_original_and_guard_restores_method(self):
+        runner.probe()
+        from babeldoc.format.pdf.document_il.midend.il_translator import ILTranslator, ParagraphTranslateTracker
+        from babeldoc.format.pdf.document_il import PdfParagraph, PdfStyle, PdfParagraphComposition, PdfSameStyleUnicodeCharacters
+        style = PdfStyle(font_id="base", font_size=10)
+        paragraph = PdfParagraph(unicode="Original text", pdf_style=style,
+            pdf_paragraph_composition=[PdfParagraphComposition(
+                pdf_same_style_unicode_characters=PdfSameStyleUnicodeCharacters(unicode="Original text", pdf_style=style))])
+        previous = ILTranslator.post_translate_paragraph
+        guard = runner.ResponseGuard(self.request, self.output)
+        il = object.__new__(ILTranslator)
+        tracker = ParagraphTranslateTracker()
+        translate_input = ILTranslator.TranslateInput("Original text", [], style)
+        with runner.protect_paragraphs(guard):
+            with self.assertRaises(runner.TranslationQualityError):
+                il.post_translate_paragraph(paragraph, tracker, translate_input, "")
+        self.assertEqual(paragraph.unicode, "Original text")
+        self.assertEqual(len(paragraph.pdf_paragraph_composition), 1)
+        self.assertIs(ILTranslator.post_translate_paragraph, previous)
+        with self.assertRaises(runner.TranslationQualityError):
+            guard.check()
 
 
 if __name__ == "__main__":

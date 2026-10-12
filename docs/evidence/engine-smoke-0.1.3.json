@@ -1,0 +1,185 @@
+[
+  {
+    "status": "passed",
+    "provider": "local deterministic fixture",
+    "outputs": [
+      {
+        "kind": "mono",
+        "pages": 1,
+        "contains_chinese": true
+      },
+      {
+        "kind": "dual",
+        "pages": 1,
+        "contains_chinese": true
+      }
+    ],
+    "exit_code": 0,
+    "model_requests": 4,
+    "scenario": "recover",
+    "request_options": [
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      }
+    ],
+    "original_unchanged": true,
+    "seconds": 8.7
+  },
+  {
+    "status": "passed",
+    "provider": "local deterministic fixture",
+    "outputs": [],
+    "exit_code": 1,
+    "model_requests": 9,
+    "scenario": "empty",
+    "request_options": [
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      }
+    ],
+    "original_unchanged": true,
+    "seconds": 8.3,
+    "expected_rejection": true,
+    "error_message": "检测到 3 次持续无效的翻译响应，未导入可能缺字的 PDF。请关闭思考模式、勾选忽略翻译缓存，或提高输出 token 上限后重试。"
+  },
+  {
+    "status": "passed",
+    "provider": "local deterministic fixture",
+    "outputs": [],
+    "exit_code": 1,
+    "model_requests": 9,
+    "scenario": "truncated",
+    "request_options": [
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      {
+        "max_tokens": 8192,
+        "thinking": {
+          "type": "disabled"
+        }
+      }
+    ],
+    "original_unchanged": true,
+    "seconds": 7.9,
+    "expected_rejection": true,
+    "error_message": "检测到 3 次持续无效的翻译响应，未导入可能缺字的 PDF。请关闭思考模式、勾选忽略翻译缓存，或提高输出 token 上限后重试。"
+  }
+]

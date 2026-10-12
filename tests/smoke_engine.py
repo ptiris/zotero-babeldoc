@@ -20,6 +20,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--directory", type=Path, default=ROOT / "test-results/engine-smoke")
     parser.add_argument("--timeout", type=int, default=600)
+    parser.add_argument("--response-mode", choices=("normal", "empty", "truncated", "recover"), default="normal")
+    parser.add_argument("--debug", action="store_true")
     args = parser.parse_args()
     directory = args.directory.resolve(); directory.mkdir(parents=True, exist_ok=True)
     runner = directory / "runner.py"
@@ -32,12 +34,13 @@ def main():
     pdf.save(source); pdf.close()
     original = hashlib.sha256(source.read_bytes()).hexdigest()
     output = job / "output"; output.mkdir()
-    Handler.calls = 0
-    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    handler = type("FixtureHandler", (Handler,), dict(calls=0, response_mode=args.response_mode, request_options=[]))
+    server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
     thread = threading.Thread(target=server.serve_forever, daemon=True); thread.start()
     request = dict(action="translate", input_file=str(source), output_dir=str(output), api_key="fixture-key",
                    base_url=f"http://127.0.0.1:{server.server_port}/v1", model="fixture-" + uuid.uuid4().hex,
-                   lang_in="en", lang_out="zh", pages="", qps=2, output_mode="both", dual_layout="side-by-side", ocr=False)
+                   lang_in="en", lang_out="zh", pages="", qps=10, output_mode="both", dual_layout="side-by-side", ocr=False,
+                   thinking="disabled", max_output_tokens=8192, ignore_cache=True, debug=args.debug)
     start = time.monotonic()
     report = {"status": "failed", "provider": "local deterministic fixture", "outputs": []}
     try:
@@ -46,8 +49,17 @@ def main():
         (directory / "stderr.log").write_text(result.stderr, encoding="utf-8")
         events = [json.loads(line) for line in result.stdout.splitlines() if line.strip()]
         finishes = [e for e in events if e.get("type") == "finish"]
-        report.update(exit_code=result.returncode, model_requests=Handler.calls,
+        report.update(exit_code=result.returncode, model_requests=handler.calls, scenario=args.response_mode,
+                      request_options=handler.request_options,
                       original_unchanged=hashlib.sha256(source.read_bytes()).hexdigest() == original)
+        assert report['original_unchanged'] and handler.calls > 0
+        assert all(r['max_tokens'] == 8192 and r['thinking'] == {'type': 'disabled'} for r in handler.request_options)
+        if args.response_mode in ("empty", "truncated"):
+            errors = [e for e in events if e.get("type") == "error"]
+            assert result.returncode != 0 and not finishes and errors, "unsafe engine output was accepted"
+            assert "翻译响应" in errors[-1]["message"] or "译文" in errors[-1]["message"]
+            report.update(status="passed", expected_rejection=True, error_message=errors[-1]["message"])
+            return
         assert result.returncode == 0 and finishes, "engine failed: " + str([e for e in events if e.get('type') == 'error'])
         for item in finishes[-1]["outputs"]:
             path = Path(item["path"]).resolve()
@@ -57,7 +69,9 @@ def main():
                 report["outputs"].append(dict(kind=item["kind"], pages=len(translated), contains_chinese="翻译" in text))
         assert {o['kind'] for o in report['outputs']} == {'mono', 'dual'}
         assert all(o['contains_chinese'] for o in report['outputs'])
-        assert report['original_unchanged'] and Handler.calls > 0
+        if args.debug:
+            assert (output / 'diagnostics.jsonl').is_file()
+            assert list((output / 'work').rglob('il_translated.json'))
         report['status'] = 'passed'
     except Exception as error:
         report['error'] = str(error)
@@ -65,7 +79,9 @@ def main():
     finally:
         server.shutdown(); server.server_close(); thread.join(timeout=5)
         report['seconds'] = round(time.monotonic() - start, 1)
-        (directory / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        report_text = json.dumps(report, ensure_ascii=False, indent=2) + "\n"
+        (directory / "report.json").write_text(report_text, encoding="utf-8")
+        (directory / ("report-" + args.response_mode + ".json")).write_text(report_text, encoding="utf-8")
         print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
 
 

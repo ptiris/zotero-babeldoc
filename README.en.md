@@ -6,6 +6,8 @@ This plugin connects BabelDOC to Zotero. Select a PDF, translate it from Zotero,
 
 Start from the item menu, Tools menu, or the reader's "译" button. The translation window lets you set the model, languages, page range, OCR, rate limit, and output layout. You can follow progress or cancel a job. When you select several PDFs, the plugin translates them one at a time.
 
+Thinking is disabled by default, with an output limit of 8192 tokens. You can bypass the translation cache or keep debug files. Empty or truncated responses are retried up to twice; persistent invalid responses or service failures stop the job before attachment import. This protects against response failures, but does not guarantee that PDF parsing and typesetting preserve every paragraph. For services without the DeepSeek-style `thinking` parameter, choose the service default in the translation window.
+
 The plugin runs a separately installed BabelDOC 0.6.4 Python engine. It does not need a persistent bridge server. You provide an OpenAI-compatible Chat Completions endpoint and API credentials; the plugin has no translation account or quota. PDF text goes to your chosen endpoint. See [data handling](docs/privacy.md).
 
 ## Install
@@ -26,9 +28,9 @@ Zotero 7 through 9 and Windows/Linux desktop integration have not been tested. T
 
 ## Updates
 
-The repository version is 0.1.2. It uses the runtime code tested in 0.1.1 and adds build, release, update, and repository tooling.
+The repository version is 0.1.3. It adds thinking controls, output token limits, cache bypass, debug files, and protection against empty translation responses.
 
-If you installed the earlier local 0.1.1 build, install 0.1.2 manually once. The old build uses a reserved `.invalid` update URL. Subsequent GitHub releases support Zotero update checks. Python engine updates are separate.
+If you installed the earlier local 0.1.1 build, install the new XPI manually once. The old build uses a reserved `.invalid` update URL. Existing settings are preserved. Subsequent GitHub releases support Zotero update checks. Python engine updates are separate.
 
 ## Development
 
